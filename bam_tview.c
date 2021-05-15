@@ -184,7 +184,7 @@ int tv_pl_func(uint32_t tid, hts_pos_t pos, int n, const bam_pileup1_t *pl, void
         interval = cp < TEN_DIGITS ? 10 : 20;
         if (cp%interval == 0 && tv->mcol - tv->ccol >= 10) tv->my_mvprintw(tv,0, tv->ccol, "%-"PRIhts_pos, cp+1);
         c = tv->ref? tv->ref[cp - tv->left_pos] : 'N';
-        tv->my_mvaddch(tv,1, tv->ccol++, c);
+        tv->my_mvaddch(tv,1, tv->ccol++, c); // lizx: print to first row, tv->ccol is the current tview column to print character
     }
     interval = pos < TEN_DIGITS ? 10 : 20;
     if (pos%interval == 0 && tv->mcol - tv->ccol >= 10) tv->my_mvprintw(tv,0, tv->ccol, "%-"PRIhts_pos, pos+1);
@@ -206,14 +206,14 @@ int tv_pl_func(uint32_t tid, hts_pos_t pos, int n, const bam_pileup1_t *pl, void
         else if (p[2] < p[1] && p[2] < p[0]) call = (1<<a2)<<16 | (int)((p[0]<p[1]?p[0]:p[1]) - p[2] + .499);
         else call = (1<<a1|1<<a2)<<16 | (int)((p[0]<p[2]?p[0]:p[2]) - p[1] + .499);
     }
-    attr = tv->my_underline(tv);
+    attr = tv->my_underline(tv); // lizx: add an underline
     c = ",ACMGRSVTWYHKDBN"[call>>16&0xf];
     i = (call&0xffff)/10+1;
     if (i > 4) i = 4;
     attr |= tv->my_colorpair(tv,i);
     if (c == toupper(rb)) c = '.';
     tv->my_attron(tv,attr);
-    tv->my_mvaddch(tv,2, tv->ccol, c);
+    tv->my_mvaddch(tv,2, tv->ccol, c); // lizx: print to second row
     tv->my_attroff(tv,attr);
     if(tv->ins) {
         // calculate maximum insert
@@ -228,10 +228,10 @@ int tv_pl_func(uint32_t tid, hts_pos_t pos, int n, const bam_pileup1_t *pl, void
         }
     }
     // core loop
-    for (j = 0; j <= max_ins; ++j) {
-        for (i = 0; i < n; ++i) {
+    for (j = 0; j <= max_ins; ++j) { // lizx: iterate through columns
+        for (i = 0; i < n; ++i) { // lizx: iterate through rows
             const bam_pileup1_t *p = pl + i;
-            int row = TV_MIN_ALNROW + p->level - tv->row_shift;
+            int row = TV_MIN_ALNROW + p->level - tv->row_shift; // lizx: TV_MIN_ALNROW is 2, the loop will print from third row
             if (j == 0) {
                 if (!p->is_del) {
                     if (tv->base_for == TV_BASE_COLOR_SPACE &&

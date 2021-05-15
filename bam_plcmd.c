@@ -57,7 +57,7 @@ static inline int printw(int c, FILE *fp)
     for (l = 0, x = c < 0? -c : c; x > 0; x /= 10) buf[l++] = x%10 + '0';
     if (c < 0) buf[l++] = '-';
     buf[l] = 0;
-    for (x = 0; x < l/2; ++x) {
+    for (x = 0; x < l/2; ++x) { // lizx: reverse the buffer
         int y = buf[x]; buf[x] = buf[l-1-x]; buf[l-1-x] = y;
     }
     fputs(buf, fp);
@@ -88,7 +88,7 @@ static inline int pileup_seq(FILE *fp, const bam_pileup1_t *p, hts_pos_t pos,
         putc(c, fp);
     } else putc(p->is_refskip? (bam_is_rev(p->b)? '<' : '>') : ((bam_is_rev(p->b) && rev_del) ? '#' : '*'), fp);
     int del_len = -p->indel;
-    if (p->indel > 0) {
+    if (p->indel > 0) { // lizx: p->indel > 0 means insertion branch
         int len = bam_plp_insertion(p, ks, &del_len);
         if (len < 0) {
             print_error("mpileup", "bam_plp_insertion() failed");
@@ -104,8 +104,8 @@ static inline int pileup_seq(FILE *fp, const bam_pileup1_t *p, hts_pos_t pos,
                 putc(toupper(ks->s[j]), fp);
         }
     }
-    if (del_len > 0) {
-        printw(-del_len, fp);
+    if (del_len > 0) { // lizx: p->indel > 0 means deletion branch
+        printw(-del_len, fp); // lizx: printw prints the '-' sign for deletions
         for (j = 1; j <= del_len; ++j) {
             int c = (ref && (int)pos+j < ref_len)? ref[pos+j] : 'N';
             putc(bam_is_rev(p->b)? tolower(c) : toupper(c), fp);
