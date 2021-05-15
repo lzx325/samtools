@@ -73,7 +73,7 @@ static inline int pileup_seq(FILE *fp, const bam_pileup1_t *p, hts_pos_t pos,
         putc('^', fp);
         putc(p->b->core.qual > 93? 126 : p->b->core.qual + 33, fp);
     }
-    if (!p->is_del) {
+    if (!p->is_del) { 
         int c = p->qpos < p->b->core.l_qseq
             ? seq_nt16_str[bam_seqi(bam_get_seq(p->b), p->qpos)]
             : 'N';
@@ -86,7 +86,7 @@ static inline int pileup_seq(FILE *fp, const bam_pileup1_t *p, hts_pos_t pos,
             else c = bam_is_rev(p->b)? tolower(c) : toupper(c);
         }
         putc(c, fp);
-    } else putc(p->is_refskip? (bam_is_rev(p->b)? '<' : '>') : ((bam_is_rev(p->b) && rev_del) ? '#' : '*'), fp);
+    } else putc(p->is_refskip? (bam_is_rev(p->b)? '<' : '>') : ((bam_is_rev(p->b) && rev_del) ? '#' : '*'), fp); // lizx: p->is_del will be true is the current position is a ref-skipped one or a deleted one
     int del_len = -p->indel;
     if (p->indel > 0) { // lizx: p->indel > 0 means insertion branch
         int len = bam_plp_insertion(p, ks, &del_len);
